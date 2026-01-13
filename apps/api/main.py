@@ -1182,8 +1182,7 @@ async def create_session(
         session_id = str(uuid.uuid4())
         conversation = Conversation(
             session_id=session_id,
-            user_id=user_id,
-            title=None  # Will be set after first message
+            metadata={"user_id": user_id} if user_id else {}
         )
         db.add(conversation)
         db.commit()
