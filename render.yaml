@@ -1,12 +1,4 @@
 services:
-  # PostgreSQL Database
-  - type: pgsql
-    name: clarity-db
-    plan: starter
-    databaseName: fiat_clarity
-    user: fiat_user
-    ipAllowList: []
-
   # FastAPI Backend
   - type: web
     name: clarity-api
