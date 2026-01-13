@@ -64,11 +64,12 @@ app = FastAPI(
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://clarity-chat-frontend.onrender.com",  # Production frontend
 ]
 
 # Add production frontend URL from environment variable if set
 FRONTEND_URL = os.getenv("FRONTEND_URL")
-if FRONTEND_URL:
+if FRONTEND_URL and FRONTEND_URL not in ALLOWED_ORIGINS:
     ALLOWED_ORIGINS.append(FRONTEND_URL)
 
 app.add_middleware(
