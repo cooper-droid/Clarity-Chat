@@ -74,36 +74,31 @@ For RAG functionality, enable the pgvector extension:
 
 Alternatively, Render may have pgvector already enabled.
 
-## Step 6: Seed Production Database
+## Step 6: Configure OpenAI Assistants API
 
-Once your API is deployed and healthy, seed it with your retirement planning documents:
+Your app uses OpenAI's Assistants API with your existing "Clarity Storage" vector store.
+
+### Get Your Vector Store ID
+
+Run this script to find your IDs:
 
 ```bash
-python scripts/seed_production.py https://clarity-api.onrender.com
+export OPENAI_API_KEY=your-key-here
+python scripts/get_openai_ids.py
 ```
 
-This will:
-1. Upload all markdown files from `data/import/`
-2. Create vector embeddings for each document
-3. Approve documents for RAG retrieval
+This will show you your **Clarity Storage** vector store ID.
 
-**Expected output:**
-```
-🌱 SEEDING PRODUCTION DATABASE
-API URL: https://clarity-api.onrender.com
+### Add to Render Environment Variables
 
-🔍 Checking API health... ✓ API is healthy
+In your Render dashboard for `clarity-api`:
+1. Go to "Environment" tab
+2. Add these variables:
+   - `OPENAI_VECTOR_STORE_ID`: Your vector store ID (from script output)
+   - `OPENAI_ASSISTANT_ID`: Leave empty (will be created automatically)
+   - `USE_ASSISTANTS_API`: Already set to `true`
 
-📚 Found 3 document(s) to ingest
-
-📄 Ingesting: Retirement Redefined... ✓ (12 chunks)
-📄 Ingesting: Roth Conversions Irmaa... ✓ (18 chunks)
-📄 Ingesting: Social Security Timing... ✓ (24 chunks)
-
-✓ 3/3 documents approved and ready for RAG
-
-Your production database is now seeded! 🚀
-```
+**Note**: Your data is already in Clarity Storage on OpenAI, so **no database seeding needed**!
 
 ## Step 7: Test Your Deployment
 

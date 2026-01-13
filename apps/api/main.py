@@ -33,6 +33,7 @@ except ImportError:
     print("Using PostgreSQL models")
 
 from services.ai_provider import ai_provider
+from services.assistants_provider import assistants_provider
 from services.rag_service import RAGService
 from services.routing_service import RoutingService
 from services.web_scraper import web_scraper
@@ -545,7 +546,48 @@ async def chat_stream(
                 yield f"data: {json.dumps({'type': 'lead_gate', 'content': lead_gate_msg})}\n\n"
                 return
 
-            # Get context
+            # Check if using Assistants API (with vector store)
+            use_assistants_api = os.getenv("USE_ASSISTANTS_API", "true").lower() == "true"
+
+            if use_assistants_api:
+                # Use OpenAI Assistants API with Clarity Storage
+                print("✓ Using Assistants API with Clarity Storage")
+
+                # Build message with file context if needed
+                user_message_content = message
+                if file_contents:
+                    files_text = "\n\n".join(file_contents)
+                    user_message_content += f"\n\n[User uploaded files]:\n{files_text}"
+
+                # Stream from Assistants API
+                for event in assistants_provider.generate_streaming_response(
+                    messages=[{"role": "user", "content": user_message_content}],
+                    thread_id=conversation.metadata.get("assistant_thread_id") if conversation.metadata else None
+                ):
+                    if event["type"] == "content":
+                        full_response = getattr(generate_stream, '_full_response', '') + event["content"]
+                        generate_stream._full_response = full_response
+                        yield f"data: {json.dumps(event)}\n\n"
+                    elif event["type"] == "citations":
+                        yield f"data: {json.dumps(event)}\n\n"
+                    elif event["type"] == "done":
+                        yield f"data: {json.dumps(event)}\n\n"
+
+                        # Save assistant response
+                        assistant_message = Message(
+                            conversation_id=conversation.id,
+                            role="assistant",
+                            content=getattr(generate_stream, '_full_response', full_response),
+                            metadata={}
+                        )
+                        db.add(assistant_message)
+                        db.commit()
+                        return
+                    elif event["type"] == "error":
+                        yield f"data: {json.dumps(event)}\n\n"
+                        return
+
+            # Fallback to custom RAG (if not using Assistants API)
             enable_rag = settings_mgr.get_setting("enable_rag", True)
             rag_chunk_limit = int(settings_mgr.get_setting("rag_chunk_limit", 3))
 
