@@ -546,48 +546,67 @@ async def chat_stream(
                 yield f"data: {json.dumps({'type': 'lead_gate', 'content': lead_gate_msg})}\n\n"
                 return
 
-            # Check if using Assistants API (with vector store)
-            use_assistants_api = os.getenv("USE_ASSISTANTS_API", "true").lower() == "true"
+            # Check if using your custom Clarity prompt
+            prompt_id = os.getenv("OPENAI_PROMPT_ID", "pmpt_6962e013d6d88196b1c3834baa00e88500912c21d3085185")
 
-            if use_assistants_api:
-                # Use OpenAI Assistants API with Clarity Storage
-                print("✓ Using Assistants API with Clarity Storage")
+            # Get API key
+            api_key = os.getenv("OPENAI_API_KEY", "")
+            if not api_key:
+                yield f"data: {json.dumps({'type': 'error', 'error': 'OpenAI API key not configured'})}\n\n"
+                return
 
-                # Build message with file context if needed
-                user_message_content = message
-                if file_contents:
-                    files_text = "\n\n".join(file_contents)
-                    user_message_content += f"\n\n[User uploaded files]:\n{files_text}"
+            from openai import OpenAI
+            openai_client = OpenAI(api_key=api_key)
 
-                # Stream from Assistants API
-                for event in assistants_provider.generate_streaming_response(
-                    messages=[{"role": "user", "content": user_message_content}],
-                    thread_id=conversation.metadata.get("assistant_thread_id") if conversation.metadata else None
-                ):
-                    if event["type"] == "content":
-                        full_response = getattr(generate_stream, '_full_response', '') + event["content"]
-                        generate_stream._full_response = full_response
-                        yield f"data: {json.dumps(event)}\n\n"
-                    elif event["type"] == "citations":
-                        yield f"data: {json.dumps(event)}\n\n"
-                    elif event["type"] == "done":
-                        yield f"data: {json.dumps(event)}\n\n"
+            # Build message with file context if needed
+            user_input = message
+            if file_contents:
+                files_text = "\n\n".join(file_contents)
+                user_input += f"\n\n[User uploaded files]:\n{files_text}"
 
-                        # Save assistant response
-                        assistant_message = Message(
-                            conversation_id=conversation.id,
-                            role="assistant",
-                            content=getattr(generate_stream, '_full_response', full_response),
-                            metadata={}
-                        )
-                        db.add(assistant_message)
-                        db.commit()
-                        return
-                    elif event["type"] == "error":
-                        yield f"data: {json.dumps(event)}\n\n"
-                        return
+            # Try to use Prompts/Responses API with your Clarity prompt (includes vector store!)
+            if prompt_id:
+                print(f"✓ Using Clarity prompt (includes Clarity Storage): {prompt_id[:20]}...")
+                try:
+                    # Check if responses API is available
+                    if hasattr(openai_client, 'beta') and hasattr(openai_client.beta, 'responses'):
+                        responses_api = openai_client.beta.responses
+                    elif hasattr(openai_client, 'responses'):
+                        responses_api = openai_client.responses
+                    else:
+                        raise AttributeError("Responses API not available")
 
-            # Fallback to custom RAG (if not using Assistants API)
+                    # Use your prompt (already includes Clarity Storage + instructions)
+                    stream = responses_api.create(
+                        prompt={"id": prompt_id, "version": "latest"},
+                        input=user_input,
+                        stream=True
+                    )
+
+                    full_response = ""
+                    for event in stream:
+                        if hasattr(event, 'delta') and event.delta:
+                            content = event.delta
+                            full_response += content
+                            yield f"data: {json.dumps({'type': 'content', 'content': content})}\n\n"
+
+                    yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+                    # Save assistant response
+                    assistant_message = Message(
+                        conversation_id=conversation.id,
+                        role="assistant",
+                        content=full_response,
+                        metadata={}
+                    )
+                    db.add(assistant_message)
+                    db.commit()
+                    return
+
+                except Exception as e:
+                    print(f"⚠ Responses API error: {e}, falling back to standard chat")
+
+            # Fallback to standard chat (if Responses API not available)
             enable_rag = settings_mgr.get_setting("enable_rag", True)
             rag_chunk_limit = int(settings_mgr.get_setting("rag_chunk_limit", 3))
 

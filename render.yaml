@@ -19,12 +19,8 @@ services:
         value: false
       - key: FRONTEND_URL
         sync: false
-      - key: USE_ASSISTANTS_API
-        value: true
-      - key: OPENAI_VECTOR_STORE_ID
-        sync: false
-      - key: OPENAI_ASSISTANT_ID
-        sync: false
+      - key: OPENAI_PROMPT_ID
+        value: pmpt_6962e013d6d88196b1c3834baa00e88500912c21d3085185
     healthCheckPath: /health
 
   # Frontend (Next.js)
