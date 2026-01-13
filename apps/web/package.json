@@ -12,6 +12,7 @@
     "@types/node": "^20.11.5",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.182.0",
     "autoprefixer": "^10.4.17",
     "gsap": "^3.14.2",
     "next": "^16.1.1",
