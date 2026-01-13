@@ -74,7 +74,38 @@ For RAG functionality, enable the pgvector extension:
 
 Alternatively, Render may have pgvector already enabled.
 
-## Step 6: Test Your Deployment
+## Step 6: Seed Production Database
+
+Once your API is deployed and healthy, seed it with your retirement planning documents:
+
+```bash
+python scripts/seed_production.py https://clarity-api.onrender.com
+```
+
+This will:
+1. Upload all markdown files from `data/import/`
+2. Create vector embeddings for each document
+3. Approve documents for RAG retrieval
+
+**Expected output:**
+```
+🌱 SEEDING PRODUCTION DATABASE
+API URL: https://clarity-api.onrender.com
+
+🔍 Checking API health... ✓ API is healthy
+
+📚 Found 3 document(s) to ingest
+
+📄 Ingesting: Retirement Redefined... ✓ (12 chunks)
+📄 Ingesting: Roth Conversions Irmaa... ✓ (18 chunks)
+📄 Ingesting: Social Security Timing... ✓ (24 chunks)
+
+✓ 3/3 documents approved and ready for RAG
+
+Your production database is now seeded! 🚀
+```
+
+## Step 7: Test Your Deployment
 
 1. **Test API**: Visit `https://clarity-api.onrender.com/health`
    - Should return: `{"status": "healthy", "database": "connected"}`
@@ -83,9 +114,9 @@ Alternatively, Render may have pgvector already enabled.
    - Should load the landing page
 
 3. **Test Chat**: Ask a question on the frontend
-   - Should receive streaming responses
+   - Should receive streaming responses with RAG-powered answers
 
-## Step 7: Custom Domain (Optional)
+## Step 8: Custom Domain (Optional)
 
 To use a custom domain:
 
