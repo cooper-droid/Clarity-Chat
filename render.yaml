@@ -39,6 +39,5 @@ databases:
   - name: clarity-db
     databaseName: fiat_clarity
     user: fiat
-    plan: starter
     region: oregon
     postgresMajorVersion: 15
