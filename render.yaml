@@ -1,0 +1,52 @@
+services:
+  # PostgreSQL Database
+  - type: pgsql
+    name: clarity-db
+    plan: starter
+    databaseName: fiat_clarity
+    user: fiat_user
+    ipAllowList: []
+
+  # FastAPI Backend
+  - type: web
+    name: clarity-api
+    runtime: python
+    region: oregon
+    plan: starter
+    buildCommand: "cd apps/api && pip install -r requirements.txt"
+    startCommand: "cd apps/api && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: clarity-db
+          property: connectionString
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DEV_MODE
+        value: false
+      - key: FRONTEND_URL
+        sync: false
+    healthCheckPath: /health
+
+  # Frontend (Next.js)
+  - type: web
+    name: clarity-chat-frontend
+    runtime: node
+    region: oregon
+    plan: starter
+    buildCommand: cd apps/web && npm install && npm run build
+    startCommand: cd apps/web && npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+      - key: NODE_ENV
+        value: production
+
+# Database
+databases:
+  - name: clarity-db
+    databaseName: fiat_clarity
+    user: fiat
+    plan: starter
+    region: oregon
+    postgresMajorVersion: 15
