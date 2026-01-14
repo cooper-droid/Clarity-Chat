@@ -19,19 +19,12 @@ import json
 
 from dotenv import load_dotenv
 
-# Try to import SQLite models first, fallback to PostgreSQL models
-try:
-    from models_sqlite import (
-        Base, Conversation, Message, Lead, ConsentEvent,
-        Document, Chunk, DocumentStatus
-    )
-    print("Using SQLite models")
-except ImportError:
-    from models import (
-        Base, Conversation, Message, Lead, ConsentEvent,
-        Document, Chunk, DocumentStatus
-    )
-    print("Using PostgreSQL models")
+# Import PostgreSQL models (for production)
+from models import (
+    Base, Conversation, Message, Lead, ConsentEvent,
+    Document, Chunk, DocumentStatus
+)
+print("Using PostgreSQL models")
 
 from services.ai_provider import ai_provider
 from services.assistants_provider import assistants_provider
