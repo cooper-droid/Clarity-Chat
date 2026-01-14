@@ -870,6 +870,7 @@ async def chat_stream(
             import traceback
             print(f"✗ Streaming error: {e}")
             print(f"Full traceback:\n{traceback.format_exc()}")
+            db.rollback()  # Rollback failed transaction
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
 
     return StreamingResponse(generate_stream(), media_type="text/event-stream")
