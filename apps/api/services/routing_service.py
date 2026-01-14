@@ -111,8 +111,8 @@ class RoutingService:
             lead.meeting_type = meeting_type
             lead.booking_url = booking_url
             lead.updated_at = datetime.utcnow()
-            lead.meta = {
-                **(lead.meta or {}),
+            lead.extra_data = {
+                **(lead.extra_data or {}),
                 "last_conversation_id": conversation_id,
                 "transcript_preview": transcript[:500]
             }

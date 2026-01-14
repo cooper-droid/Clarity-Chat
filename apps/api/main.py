@@ -223,7 +223,7 @@ async def chat(
         if not conversation:
             conversation = Conversation(
                 session_id=request.session_id,
-                meta=request.metadata
+                extra_data=request.metadata
             )
             db.add(conversation)
             db.commit()
@@ -234,7 +234,7 @@ async def chat(
             conversation_id=conversation.id,
             role="user",
             content=request.message,
-            meta=request.metadata
+            extra_data=request.metadata
         )
         db.add(user_message)
         db.commit()
@@ -259,7 +259,7 @@ async def chat(
                 conversation_id=conversation.id,
                 role="assistant",
                 content=lead_gate_msg,
-                meta={"type": "lead_gate"}
+                extra_data={"type": "lead_gate"}
             )
             db.add(gate_message)
             db.commit()
@@ -406,7 +406,7 @@ async def chat(
             conversation_id=conversation.id,
             role="assistant",
             content=response_text,
-            meta={
+            extra_data={
                 "citations": citations,
                 "context_chunks": len(all_context),
                 "web_content_count": len(web_content)
@@ -506,7 +506,7 @@ async def chat_stream(
                 conversation = Conversation(
                     session_id=session_id,
                     user_id=user_id,
-                    meta={}
+                    extra_data={}
                 )
                 db.add(conversation)
                 db.commit()
@@ -526,7 +526,7 @@ async def chat_stream(
                 conversation_id=conversation.id,
                 role="user",
                 content=message_content,
-                meta={"files": file_metadata} if file_metadata else {}
+                extra_data={"files": file_metadata} if file_metadata else {}
             )
             db.add(user_message)
             db.commit()
@@ -599,7 +599,7 @@ async def chat_stream(
                         conversation_id=conversation.id,
                         role="assistant",
                         content=full_response,
-                        meta={}
+                        extra_data={}
                     )
                     db.add(assistant_message)
                     db.commit()
@@ -808,7 +808,7 @@ async def chat_stream(
                 conversation_id=conversation.id,
                 role="assistant",
                 content=full_response,
-                meta={
+                extra_data={
                     "context_chunks": len(all_context),
                     "web_content_count": len(web_content)
                 }
@@ -927,7 +927,7 @@ async def create_lead(
             page_url=request.page_url or "http://localhost:3000",
             disclosure_text=disclosure_text,
             disclosure_version="v1.0",
-            meta={
+            extra_data={
                 "session_id": request.session_id,
                 "capture_method": "in_chat_form"
             }
@@ -1182,7 +1182,7 @@ async def create_session(
         session_id = str(uuid.uuid4())
         conversation = Conversation(
             session_id=session_id,
-            meta={"user_id": user_id} if user_id else {}
+            extra_data={"user_id": user_id} if user_id else {}
         )
         db.add(conversation)
         db.commit()

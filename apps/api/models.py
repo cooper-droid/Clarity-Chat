@@ -25,7 +25,7 @@ class Document(Base):
     published_date = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    meta = Column("metadata", JSON, default={})
+    extra_data = Column(JSON, default={})
 
     chunks = relationship("Chunk", back_populates="document", cascade="all, delete-orphan")
 
@@ -52,7 +52,7 @@ class Conversation(Base):
     lead_id = Column(Integer, ForeignKey("leads.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    meta = Column("metadata", JSON, default={})
+    extra_data = Column(JSON, default={})
 
     messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan")
     lead = relationship("Lead", back_populates="conversations")
@@ -66,7 +66,7 @@ class Message(Base):
     role = Column(String(20), nullable=False)  # user, assistant, system
     content = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    meta = Column("metadata", JSON, default={})  # citations, routing info, etc.
+    extra_data = Column(JSON, default={})  # citations, routing info, etc.
 
     conversation = relationship("Conversation", back_populates="messages")
 
@@ -83,7 +83,7 @@ class Lead(Base):
     booking_url = Column(String(500))
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    meta = Column("metadata", JSON, default={})
+    extra_data = Column(JSON, default={})
 
     conversations = relationship("Conversation", back_populates="lead")
     consent_events = relationship("ConsentEvent", back_populates="lead", cascade="all, delete-orphan")
@@ -102,6 +102,6 @@ class ConsentEvent(Base):
     disclosure_text = Column(Text)
     disclosure_version = Column(String(50))
     created_at = Column(DateTime, default=datetime.utcnow)
-    meta = Column("metadata", JSON, default={})
+    extra_data = Column(JSON, default={})
 
     lead = relationship("Lead", back_populates="consent_events")

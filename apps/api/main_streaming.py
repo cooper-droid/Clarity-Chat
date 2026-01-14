@@ -33,7 +33,7 @@ async def generate_stream(
         if not conversation:
             conversation = Conversation(
                 session_id=request.session_id,
-                metadata=request.metadata
+                extra_data=request.metadata
             )
             db.add(conversation)
             db.commit()
@@ -44,7 +44,7 @@ async def generate_stream(
             conversation_id=conversation.id,
             role="user",
             content=request.message,
-            metadata=request.metadata
+            extra_data=request.metadata
         )
         db.add(user_message)
         db.commit()
