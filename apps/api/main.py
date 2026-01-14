@@ -505,15 +505,14 @@ async def chat_stream(
             if not conversation:
                 conversation = Conversation(
                     session_id=session_id,
-                    user_id=user_id,
-                    extra_data={}
+                    extra_data={"user_id": user_id} if user_id else {}
                 )
                 db.add(conversation)
                 db.commit()
                 db.refresh(conversation)
-            elif user_id and not conversation.user_id:
+            elif user_id and not conversation.extra_data.get("user_id"):
                 # Update conversation with user_id if it wasn't set
-                conversation.user_id = user_id
+                conversation.extra_data = {**conversation.extra_data, "user_id": user_id}
                 db.commit()
 
             # Prepare message content with file info

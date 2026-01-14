@@ -22,6 +22,11 @@ def init_database():
         conn.commit()
         print("✓ pgvector extension enabled")
 
+    # Drop all existing tables and recreate (fresh start)
+    print("⚠ Dropping existing tables...")
+    Base.metadata.drop_all(bind=engine)
+    print("✓ Old tables dropped")
+
     # Create all tables
     Base.metadata.create_all(bind=engine)
     print("✓ All tables created")
