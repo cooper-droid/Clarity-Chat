@@ -613,7 +613,10 @@ async def chat_stream(
                     return
 
                 except Exception as e:
-                    print(f"⚠ Responses API error: {e}, falling back to standard chat")
+                    import traceback
+                    print(f"⚠ Responses API error: {e}")
+                    print(f"Full error traceback:\n{traceback.format_exc()}")
+                    print("Falling back to standard chat...")
 
             # Fallback to standard chat (if Responses API not available)
             enable_rag = settings_mgr.get_setting("enable_rag", True)
@@ -651,16 +654,16 @@ async def chat_stream(
                 for msg in reversed(recent_messages)
             ]
 
-            # Get AI settings
+            # Get AI settings (use environment variables for API key and prompt)
             system_prompt = settings_mgr.get_setting("system_prompt", "You are a helpful assistant.")
             model = settings_mgr.get_setting("openai_model", "gpt-4-turbo-preview")
             temperature = float(settings_mgr.get_setting("temperature", 0.7))
             max_tokens = int(settings_mgr.get_setting("max_tokens", 1000))
-            api_key = settings_mgr.get_setting("openai_api_key", "")
-            prompt_id = settings_mgr.get_setting("openai_prompt_id", "")
-            prompt_version = settings_mgr.get_setting("openai_prompt_version", "2")
 
-            if not api_key or not api_key.strip():
+            # Use environment variable for API key (same as above)
+            fallback_api_key = os.getenv("OPENAI_API_KEY", "")
+
+            if not fallback_api_key or not fallback_api_key.strip():
                 # Dev mode fallback
                 yield f"data: {json.dumps({'type': 'content', 'content': 'Running in dev mode. Please configure your OpenAI API key in the admin panel.'})}\n\n"
                 yield f"data: {json.dumps({'type': 'done'})}\n\n"
@@ -668,7 +671,7 @@ async def chat_stream(
 
             # Stream from OpenAI
             from openai import OpenAI
-            openai_client = OpenAI(api_key=api_key.strip())
+            openai_client = OpenAI(api_key=fallback_api_key.strip())
 
             context_text = "\n\n".join([
                 f"[{chunk.get('title', 'Unknown')}]\n{chunk.get('content', '')}"
