@@ -5,11 +5,8 @@ Routes leads to appropriate meeting types and advisors based on conversation con
 from typing import Dict, List
 from sqlalchemy.orm import Session
 
-# Import models (try SQLite first)
-try:
-    from models_sqlite import Lead, Conversation, Message
-except ImportError:
-    from models import Lead, Conversation, Message
+# Import PostgreSQL models
+from models import Lead, Conversation, Message
 
 from datetime import datetime
 import re

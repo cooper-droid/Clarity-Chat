@@ -6,11 +6,8 @@ from typing import List, Dict, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
-# Import models (try SQLite first)
-try:
-    from models_sqlite import Document, Chunk, DocumentStatus
-except ImportError:
-    from models import Document, Chunk, DocumentStatus
+# Import PostgreSQL models
+from models import Document, Chunk, DocumentStatus
 
 from services.ai_provider import ai_provider
 
