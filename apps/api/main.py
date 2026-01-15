@@ -204,9 +204,11 @@ async def chat(
     Handle chat message.
     Returns response and indicates if lead gate should be shown.
     """
+    # Create separate session for settings
+    settings_db = SessionLocal()
     try:
-        # Load settings
-        settings_mgr = SettingsManager(db)
+        # Load settings with separate session
+        settings_mgr = SettingsManager(settings_db)
 
         # Get or create conversation
         conversation = db.query(Conversation).filter(
@@ -425,6 +427,8 @@ async def chat(
     except Exception as e:
         print(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=f"Error processing chat: {str(e)}")
+    finally:
+        settings_db.close()
 
 
 @app.post("/chat/stream")
