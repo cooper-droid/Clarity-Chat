@@ -6,6 +6,7 @@ import os
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from models import Base
+from settings_manager import init_settings_table
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -51,6 +52,14 @@ def init_database():
             print("✓ Chunks.embedding column added as vector(1536)")
         else:
             print("✓ Chunks.embedding column already configured")
+
+    # Initialize settings table
+    print("Initializing settings table...")
+    try:
+        init_settings_table(DATABASE_URL)
+        print("✓ Settings table initialized")
+    except Exception as e:
+        print(f"⚠ Settings initialization warning: {e}")
 
     print("\n✅ Database initialization complete!")
     print(f"   Connected to: {DATABASE_URL}")

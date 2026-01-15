@@ -524,13 +524,7 @@ async def chat_stream(
             db.commit()
 
             # Check lead gate
-            try:
-                enable_lead_gate = settings_mgr.get_setting("enable_lead_gate", True)
-            except Exception as e:
-                print(f"⚠ Settings query failed: {e}")
-                db.rollback()
-                enable_lead_gate = True
-
+            enable_lead_gate = settings_mgr.get_setting("enable_lead_gate", True)
             assistant_message_count = db.query(Message).filter(
                 Message.conversation_id == conversation.id,
                 Message.role == "assistant"

@@ -143,25 +143,33 @@ TONE:
 
     def get_setting(self, key: str, default=None):
         """Get a setting value by key."""
-        setting = self.db.query(ChatSettings).filter(
-            ChatSettings.setting_key == key
-        ).first()
+        try:
+            setting = self.db.query(ChatSettings).filter(
+                ChatSettings.setting_key == key
+            ).first()
 
-        if not setting:
-            # Return default from DEFAULT_SETTINGS
+            if not setting:
+                # Return default from DEFAULT_SETTINGS
+                if key in self.DEFAULT_SETTINGS:
+                    return self.DEFAULT_SETTINGS[key]["value"]
+                return default
+
+            # Parse value based on type
+            if setting.setting_type == "boolean":
+                return setting.setting_value.lower() == "true"
+            elif setting.setting_type == "number":
+                return float(setting.setting_value)
+            elif setting.setting_type == "json":
+                return json.loads(setting.setting_value)
+            else:
+                return setting.setting_value
+        except Exception as e:
+            print(f"⚠ Settings query error for '{key}': {e}")
+            self.db.rollback()  # Rollback failed transaction
+            # Return default
             if key in self.DEFAULT_SETTINGS:
                 return self.DEFAULT_SETTINGS[key]["value"]
             return default
-
-        # Parse value based on type
-        if setting.setting_type == "boolean":
-            return setting.setting_value.lower() == "true"
-        elif setting.setting_type == "number":
-            return float(setting.setting_value)
-        elif setting.setting_type == "json":
-            return json.loads(setting.setting_value)
-        else:
-            return setting.setting_value
 
     def set_setting(self, key: str, value, setting_type: str = None, description: str = None):
         """Set a setting value."""
