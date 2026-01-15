@@ -487,8 +487,9 @@ async def chat_stream(
 
     async def generate_stream():
         try:
-            # Load settings
-            settings_mgr = SettingsManager(db)
+            # Load settings with a separate session to avoid transaction conflicts
+            settings_db = SessionLocal()
+            settings_mgr = SettingsManager(settings_db)
 
             # Get or create conversation
             conversation = db.query(Conversation).filter(
@@ -872,6 +873,9 @@ async def chat_stream(
             print(f"Full traceback:\n{traceback.format_exc()}")
             db.rollback()  # Rollback failed transaction
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+        finally:
+            # Close the separate settings session
+            settings_db.close()
 
     return StreamingResponse(generate_stream(), media_type="text/event-stream")
 
