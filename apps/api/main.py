@@ -491,14 +491,19 @@ async def chat_stream(
 
     async def generate_stream():
         try:
+            print("🔧 Starting generate_stream")
             # Load settings with a separate session to avoid transaction conflicts
             settings_db = SessionLocal()
+            print(f"✓ Created settings_db session: {type(settings_db)}")
             settings_mgr = SettingsManager(settings_db)
+            print("✓ Created settings_mgr")
 
             # Get or create conversation
+            print(f"🔧 Querying conversation for session: {session_id}")
             conversation = db.query(Conversation).filter(
                 Conversation.session_id == session_id
             ).first()
+            print(f"✓ Found conversation: {conversation.id if conversation else 'None'}")
 
             if not conversation:
                 conversation = Conversation(
@@ -529,11 +534,16 @@ async def chat_stream(
             db.commit()
 
             # Check lead gate
+            print("🔧 Getting enable_lead_gate setting...")
             enable_lead_gate = settings_mgr.get_setting("enable_lead_gate", True)
+            print(f"✓ enable_lead_gate = {enable_lead_gate}")
+
+            print("🔧 Querying assistant message count...")
             assistant_message_count = db.query(Message).filter(
                 Message.conversation_id == conversation.id,
                 Message.role == "assistant"
             ).count()
+            print(f"✓ assistant_message_count = {assistant_message_count}")
 
             show_lead_gate = enable_lead_gate and assistant_message_count >= 1 and not conversation.lead_id
 
