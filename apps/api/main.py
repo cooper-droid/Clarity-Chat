@@ -558,8 +558,8 @@ async def chat_stream(
             # Check if using your custom Clarity prompt
             prompt_id = os.getenv("OPENAI_PROMPT_ID", "pmpt_6962e013d6d88196b1c3834baa00e88500912c21d3085185")
 
-            # Get API key
-            api_key = os.getenv("OPENAI_API_KEY", "")
+            # Get API key and strip any whitespace/newlines
+            api_key = os.getenv("OPENAI_API_KEY", "").strip()
             if not api_key:
                 yield f"data: {json.dumps({'type': 'error', 'error': 'OpenAI API key not configured'})}\n\n"
                 return
@@ -713,11 +713,9 @@ async def chat_stream(
                     else:
                         responses_api = openai_client.responses
 
-                    # Use the Responses API EXACTLY as OpenAI's example
-                    prompt_config = {
-                        "id": prompt_id.strip(),
-                        "version": prompt_version,
-                    }
+                    # Use the Responses API - try with just the ID (no version)
+                    # Some prompts don't support "latest" version
+                    prompt_config = {"id": prompt_id.strip()}
 
                     # Match OpenAI's example: only prompt and stream parameters
                     stream = responses_api.create(
@@ -725,7 +723,7 @@ async def chat_stream(
                         input=message,  # User message
                         stream=True
                     )
-                    print(f"✓ Using OpenAI Responses API with prompt ID: {prompt_id} version {prompt_version}")
+                    print(f"✓ Using OpenAI Responses API with prompt ID: {prompt_id}")
                     print(f"  Message: {message[:80]}...")
 
                     # Process the stream immediately (don't fall through to fallback)
