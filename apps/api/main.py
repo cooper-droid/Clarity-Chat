@@ -660,8 +660,10 @@ async def chat_stream(
             temperature = float(settings_mgr.get_setting("temperature", 0.7))
             max_tokens = int(settings_mgr.get_setting("max_tokens", 1000))
 
-            # Use environment variable for API key (same as above)
+            # Use environment variables for API key and prompt (same as above)
             fallback_api_key = os.getenv("OPENAI_API_KEY", "")
+            prompt_id = os.getenv("OPENAI_PROMPT_ID", "pmpt_6962e013d6d88196b1c3834baa00e88500912c21d3085185")
+            prompt_version = "latest"
 
             if not fallback_api_key or not fallback_api_key.strip():
                 # Dev mode fallback
