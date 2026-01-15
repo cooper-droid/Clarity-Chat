@@ -6,6 +6,7 @@ import os
 import sys
 from sqlalchemy import create_engine, text
 from models import Base
+from settings_manager import ChatSettings, init_settings_table
 
 # Get database URL from environment or command line
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -30,6 +31,11 @@ try:
     print("🔨 Creating tables with new schema...")
     Base.metadata.create_all(bind=engine)
     print("✅ All tables created with extra_data columns")
+
+    # Initialize settings table
+    print("🔨 Initializing settings table...")
+    init_settings_table(DATABASE_URL)
+    print("✅ Settings table initialized")
 
     # Enable pgvector and configure embedding column
     with engine.connect() as conn:
