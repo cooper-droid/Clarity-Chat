@@ -713,9 +713,16 @@ async def chat_stream(
                     else:
                         responses_api = openai_client.responses
 
-                    # Use the Responses API - try with just the ID (no version)
-                    # Some prompts don't support "latest" version
+                    # Use the Responses API with specific version if provided
                     prompt_config = {"id": prompt_id.strip()}
+
+                    # Add version if specified in environment
+                    prompt_version_env = os.getenv("OPENAI_PROMPT_VERSION", "")
+                    if prompt_version_env and prompt_version_env.strip():
+                        prompt_config["version"] = prompt_version_env.strip()
+                        print(f"  Using prompt version: {prompt_version_env.strip()}")
+                    else:
+                        print(f"  Using default/active prompt version")
 
                     # Match OpenAI's example: only prompt and stream parameters
                     stream = responses_api.create(
