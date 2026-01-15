@@ -727,9 +727,67 @@ async def chat_stream(
                     )
                     print(f"✓ Using OpenAI Responses API with prompt ID: {prompt_id} version {prompt_version}")
                     print(f"  Message: {message[:80]}...")
+
+                    # Process the stream immediately (don't fall through to fallback)
+                    full_response = ""
+                    for chunk in stream:
+                        try:
+                            # Responses API uses event-based streaming
+                            if hasattr(chunk, 'type'):
+                                event_type = chunk.type
+                                print(f"  Event type: {event_type}")
+
+                                # Text delta events contain the streaming content
+                                if event_type == 'response.output_text.delta':
+                                    if hasattr(chunk, 'delta') and chunk.delta:
+                                        content = chunk.delta
+                                        full_response += content
+                                        yield f"data: {json.dumps({'type': 'content', 'content': content})}\n\n"
+
+                                # Final text event (fallback)
+                                elif event_type == 'response.output_text.done':
+                                    if hasattr(chunk, 'text') and chunk.text:
+                                        # If we somehow missed deltas, use the final text
+                                        if not full_response or len(chunk.text) > len(full_response):
+                                            missing_content = chunk.text[len(full_response):]
+                                            if missing_content:
+                                                full_response = chunk.text
+                                                yield f"data: {json.dumps({'type': 'content', 'content': missing_content})}\n\n"
+
+                            # Fallback: if chunk has content attribute directly
+                            elif hasattr(chunk, 'content'):
+                                content = str(chunk.content)
+                                if content and content not in full_response:
+                                    full_response += content
+                                    yield f"data: {json.dumps({'type': 'content', 'content': content})}\n\n"
+                            else:
+                                print(f"  Unknown chunk format: {chunk}")
+
+                        except Exception as chunk_error:
+                            print(f"⚠ Error processing chunk: {chunk_error}")
+                            print(f"  Chunk type: {type(chunk)}")
+                            if hasattr(chunk, '__dict__'):
+                                print(f"  Chunk attributes: {list(chunk.__dict__.keys())}")
+                            continue
+
+                    yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+                    # Save assistant response
+                    assistant_message = Message(
+                        conversation_id=conversation.id,
+                        role="assistant",
+                        content=full_response,
+                        extra_data={}
+                    )
+                    db.add(assistant_message)
+                    db.commit()
+                    return  # Exit after successful Responses API call
+
                 except Exception as e:
-                    print(f"Error using Responses API: {e}, falling back to standard completion")
-                    print(f"Note: Responses API may require SDK update or beta access")
+                    import traceback
+                    print(f"⚠ Error using Responses API: {e}")
+                    print(f"Full traceback:\n{traceback.format_exc()}")
+                    print(f"Falling back to standard completion")
                     # Fallback to standard completion
                     augmented_messages = [
                         {"role": "system", "content": system_prompt}
