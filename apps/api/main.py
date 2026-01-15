@@ -827,14 +827,6 @@ async def chat_stream(
             )
             db.add(assistant_message)
 
-            # Auto-generate title from first user message if not set
-            if not conversation.title:
-                # Use first user message as title (truncate if too long)
-                first_message = message[:60]
-                if len(message) > 60:
-                    first_message += "..."
-                conversation.title = first_message
-
             # Update conversation timestamp
             conversation.updated_at = datetime.utcnow()
             db.commit()
@@ -1277,7 +1269,8 @@ async def update_session_title(
         if not conversation:
             raise HTTPException(status_code=404, detail="Session not found")
 
-        conversation.title = title
+        # Store title in extra_data since Conversation model doesn't have title field
+        conversation.extra_data = {**conversation.extra_data, "title": title}
         conversation.updated_at = datetime.utcnow()
         db.commit()
 
