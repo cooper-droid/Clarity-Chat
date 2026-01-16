@@ -83,6 +83,17 @@ body {
   }
 }
 
+@keyframes gentlePulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.03);
+  }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
@@ -93,6 +104,10 @@ body {
 
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-gentle-pulse {
+  animation: gentlePulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .animate-bounce {

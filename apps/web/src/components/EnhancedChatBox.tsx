@@ -109,10 +109,10 @@ export default function EnhancedChatBox({ onQuestionClick }: EnhancedChatBoxProp
       <div className="flex-1 p-6 overflow-y-auto">
         {/* Initial greeting message */}
         <div className="flex items-start gap-3 mb-4">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
             theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'
           }`}>
-            <span className="text-sm">C</span>
+            <span className="text-xs font-bold">CLR</span>
           </div>
           <div className={`rounded-2xl rounded-tl-sm px-4 py-3 max-w-[80%] ${
             theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-900'
@@ -214,31 +214,54 @@ export default function EnhancedChatBox({ onQuestionClick }: EnhancedChatBoxProp
               </button>
             </div>
           ) : (
-            <div
-              onClick={handleInputClick}
-              className={`px-4 py-3 rounded-xl cursor-text transition-colors ${
-                theme === 'dark'
-                  ? 'bg-gray-800 text-white'
-                  : 'bg-gray-50 text-gray-900'
-              }`}
-            >
-              <div className="flex items-center min-h-[24px]">
-                {!selectedTopic && (
-                  <>
-                    <span className="text-sm">{displayText}</span>
-                    <span className={`inline-block w-0.5 h-4 ml-1 animate-pulse ${
-                      theme === 'dark' ? 'bg-gray-400' : 'bg-gray-600'
-                    }`}></span>
-                  </>
-                )}
-                {selectedTopic && (
-                  <span className={`text-sm ${
-                    theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-                  }`}>
-                    Type your question here...
-                  </span>
-                )}
+            <div className="relative">
+              <div
+                onClick={handleInputClick}
+                className={`px-4 py-3 pr-12 rounded-xl cursor-text transition-colors ${
+                  theme === 'dark'
+                    ? 'bg-gray-800 text-white'
+                    : 'bg-gray-50 text-gray-900'
+                }`}
+              >
+                <div className="flex items-center min-h-[24px]">
+                  {!selectedTopic && (
+                    <>
+                      <span className="text-sm">{displayText}</span>
+                      <span className={`inline-block w-0.5 h-4 ml-1 animate-pulse ${
+                        theme === 'dark' ? 'bg-gray-400' : 'bg-gray-600'
+                      }`}></span>
+                    </>
+                  )}
+                  {selectedTopic && (
+                    <span className={`text-sm ${
+                      theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+                    }`}>
+                      Type your question here...
+                    </span>
+                  )}
+                </div>
               </div>
+              <button
+                onClick={handleInputClick}
+                className={`absolute bottom-2 right-2 w-8 h-8 rounded-lg flex items-center justify-center transition-colors animate-gentle-pulse ${
+                  theme === 'dark'
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                }`}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 10L17 3L10 17L8.5 11.5L3 10Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
             </div>
           )}
         </div>

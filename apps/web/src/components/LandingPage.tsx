@@ -78,7 +78,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
 
         {/* Enhanced Chat Box */}
-        <div className="w-full max-w-2xl mb-12">
+        <div className="w-full max-w-3xl mb-32">
           <EnhancedChatBox onQuestionClick={(question) => onGetStarted(question)} />
         </div>
 
