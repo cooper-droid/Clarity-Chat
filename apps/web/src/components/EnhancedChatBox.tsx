@@ -100,11 +100,11 @@ export default function EnhancedChatBox({ onQuestionClick }: EnhancedChatBoxProp
   }
 
   return (
-    <div className={`w-full aspect-square border-2 rounded-3xl flex flex-col overflow-hidden ${
+    <div className={`w-full border-2 rounded-3xl flex flex-col overflow-hidden ${
       theme === 'dark'
         ? 'bg-[#1a1a1a] border-gray-800'
         : 'bg-white border-gray-200'
-    }`}>
+    }`} style={{ aspectRatio: '1 / 0.67' }}>
       {/* Chat Messages Area - looks like actual chat */}
       <div className="flex-1 p-6 overflow-y-auto">
         {/* Initial greeting message */}

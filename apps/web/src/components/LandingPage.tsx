@@ -78,12 +78,12 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
 
         {/* Enhanced Chat Box */}
-        <div className="w-full max-w-3xl mb-32">
+        <div className="w-full max-w-3xl mb-64">
           <EnhancedChatBox onQuestionClick={(question) => onGetStarted(question)} />
         </div>
 
         {/* Bottom Section - Text and Icons */}
-        <div className="absolute bottom-20 left-0 right-0 flex flex-col items-center gap-6 px-6">
+        <div className="absolute bottom-32 left-0 right-0 flex flex-col items-center gap-6 px-6">
           <p className={`text-2xl md:text-3xl font-bold text-center ${
             theme === 'dark' ? 'text-white' : 'text-gray-900'
           }`}>
