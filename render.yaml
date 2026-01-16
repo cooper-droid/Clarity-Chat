@@ -23,7 +23,7 @@ services:
       - key: OPENAI_PROMPT_ID
         value: pmpt_6962e013d6d88196b1c3834baa00e88500912c21d3085185
       - key: OPENAI_PROMPT_VERSION
-        value: "29"
+        value: "33"
     healthCheckPath: /health
 
   # Frontend (Next.js)
