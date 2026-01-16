@@ -3,6 +3,7 @@
 import { useTheme } from '@/contexts/ThemeContext'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import ThinkingAnimation from './ThinkingAnimation'
 
 interface Citation {
   title: string
@@ -51,11 +52,7 @@ export default function MessageBubble({
               theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50 border border-gray-300'
             }`}>
               {isLoading && content === '' ? (
-                <div className="flex items-center gap-2 py-2">
-                  <div className={`w-2 h-2 rounded-full animate-bounce ${theme === 'dark' ? 'bg-gray-500' : 'bg-gray-400'}`} style={{ animationDelay: '0ms' }}></div>
-                  <div className={`w-2 h-2 rounded-full animate-bounce ${theme === 'dark' ? 'bg-gray-500' : 'bg-gray-400'}`} style={{ animationDelay: '150ms' }}></div>
-                  <div className={`w-2 h-2 rounded-full animate-bounce ${theme === 'dark' ? 'bg-gray-500' : 'bg-gray-400'}`} style={{ animationDelay: '300ms' }}></div>
-                </div>
+                <ThinkingAnimation />
               ) : (
                 <>
                   <div className={`text-[15px] leading-relaxed prose prose-sm max-w-none ${
